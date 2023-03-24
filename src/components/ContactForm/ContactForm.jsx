@@ -1,43 +1,60 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import shortid from 'shortid';
-// import {  Form, ErrorMessage } from 'formik';
+import { useState } from "react";
+import shortid from "shortid";
 import { Button, Input, Label } from './ContactForm.styled';
+import { addContact } from 'redux/contactSlice';
+import { getContactsValue } from 'redux/selectors/selectors';
+import { useSelector, useDispatch } from 'react-redux';
 
-export default function ContactForm({ onSubmit }) {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+export const ContactForm = () => {
+    const [name, setName] = useState('');
+    const [number, setNumber] = useState('');
+    const contacts = useSelector(getContactsValue);
 
-  const handleInputChange = e => {
-    const { name, value } = e.currentTarget;
+    const dispatch = useDispatch();
+    const id = shortid.generate();
 
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
+    const createContact = ({ name, number }) => ({
+        id: id,
+        name,
+        number,
+    });
 
-      case 'number':
-        setNumber(value);
-        break;
+    const addContactToState = contact => dispatch(addContact(contact)); 
 
-      default:
-        return;
+    const handleInputChange = e => {
+        const { name, value } = e.currentTarget;
+
+        switch (name) { 
+            case 'name':
+                setName(value);
+                break;
+            
+            case 'number':
+                setNumber(value);
+                break;
+            
+            default:
+                return;
+        }
+    };
+
+    const handleSubmit = e => {
+        e.preventDefault();
+        const userName = contacts.find(user => user.name.toLocaleLowerCase() === name.toLowerCase());
+    if (userName) {
+      alert(`${name} is already in contacs`);
+    } else {
+      addContactToState(createContact({ name, number }));
+      reset();
     }
   };
 
-  const handleSubmit = e => {
-    const id = shortid.generate();
-    e.preventDefault();
-    onSubmit({ name: name, number: number, id: id });
-    reset();
-  };
+    const reset = () => {
+        setName('');
+        setNumber('')
+    };
 
-  const reset = () => {
-    setName('');
-    setNumber('');
-  };
-
-  return (
+        return (
     <form onSubmit={handleSubmit}>
       <Label>
         Name
@@ -67,8 +84,4 @@ export default function ContactForm({ onSubmit }) {
       <Button type="submit">Add contact</Button>
     </form>
   );
-}
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };

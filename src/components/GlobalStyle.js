@@ -1,6 +1,5 @@
 import { createGlobalStyle } from "styled-components";
 import 'modern-normalize';
-// import images from 'images/devicetemplates_tablet-02.png';
 
 export const GlobalStyle = createGlobalStyle`
 body {
